@@ -1,0 +1,1 @@
+function G(ω, a, b)
