@@ -1,4 +1,4 @@
-function G(a, b, ω, J::Stdd; imagshift=1E-12)
+function greensfun(a, b, ω, J::Stdd; imagshift=1E-12)
     k = k0(ω, J)
     dim = length(a)
     r = norm(a-b) + imagshift*1im

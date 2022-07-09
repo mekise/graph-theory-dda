@@ -1,6 +1,6 @@
-abstract type Parameters end
+abstract type Parameter end
 
-struct Stdd{T<:Real} <: Parameters
+struct Stdd{T<:Real} <: Parameter
     v::T
 end
 
