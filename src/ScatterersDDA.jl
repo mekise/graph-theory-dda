@@ -4,7 +4,7 @@ using LinearAlgebra
 using SpecialFunctions
 using Random
 using ForwardDiff
-using MultiQuad
+using Cubature
 
 include("Misc.jl");
 include("GreensFunction.jl");
