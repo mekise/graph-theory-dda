@@ -7,7 +7,6 @@ end
 function totfield(x, ϕinput, scattpos, alphas, ω, J::Stdd; normalized=false, imagshift=1E-12)
     ϕinc = incfield(ϕinput, scattpos, alphas, ω, J; normalized=normalized, imagshift=imagshift)
     n = size(scattpos, 1)
-    dim = size(scattpos, 2)
     ϕtot = 0. + 0im
     for i in 1:n
         ϕtot += alphas[i]*ϕinc[i]*greensfun(x, scattpos[i, :], ω, J; imagshift=imagshift)
