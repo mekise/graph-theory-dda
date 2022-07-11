@@ -17,16 +17,17 @@ function greensfunpolar(a, ω, J::Stdd; imagshift=1E-12)
     return greensfun([r*cos(θ)*sin(ϕ), r*sin(θ)*sin(ϕ), r*cos(ϕ)], [0., 0., 0.], ω, J; imagshift=imagshift)
 end
 
-function Gcomplexgrad(r, ω, J::Stdd; imagshift=1E-12)
-    freal = r -> real(greensfunpolar([r, 0, 0], ω, J; imagshift=imagshift))
-    fimag = r -> imag(greensfunpolar([r, 0, 0], ω, J; imagshift=imagshift))
-    gradreal = r -> ForwardDiff.gradient(freal, r)
-    gradimag = r -> ForwardDiff.gradient(fimag, r)
-    return gradreal(r).+1im*gradimag(r)
+function Gcomplexgrad(x, ω, J::Stdd; imagshift=1E-12)
+    freal = x -> real(greensfunpolar(x, ω, J; imagshift=imagshift))
+    fimag = x -> imag(greensfunpolar(x, ω, J; imagshift=imagshift))
+    gradreal = x -> ForwardDiff.gradient(freal, x)
+    gradimag = x -> ForwardDiff.gradient(fimag, x)
+    return gradreal(x).+1im*gradimag(x)
 end
 
-function Gintegrand(r, ω, J::Stdd; imagshift=1E-12)
-    return imag(conj(greensfunpolar(r, ω, J; imagshift=imagshift))*Gcomplexgrad(r, ω, J; imagshift=imagshift))*(x[1]^2)*sin(x[2])
+function Gintegrand(x, ω, J::Stdd; imagshift=1E-12)
+    (r, θ) = (x[1], x[2])
+    return imag(conj(greensfunpolar(x, ω, J; imagshift=imagshift))*Gcomplexgrad(x, ω, J; imagshift=imagshift))*(r^2)*sin(θ)
 end
 
 function Gintegral(r, ω, J::Stdd; imagshift=1E-12)
