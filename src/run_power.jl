@@ -6,24 +6,27 @@ using ProgressMeter
 ω = 1.
 J = Stdd(1.);
 
-scattpos = [[1. 2. 0.]
-            [1. 1. 0.]
-            [0. 2. 2.]];
-alphas = [(1. + 2im)
-          (1. - 2im)
-          (1. - 1im)];
-ϕinput = [(1. + 1im)
-          (2. + 1im)
-          (0. - 1im)];
+scattpos = [[0.5 0. 0.]
+            [1. 0. 0.]
+            [1.5 0. 0.]
+            [2. 0. 0.]];
+alphas = [(1. + 0im)
+          (1. + 0im)
+          (1. + 0im)
+          (1. + 0im)];
+ϕinput = [(1. + 0im)
+          (1. + 0im)
+          (1. + 0im)
+          (1. + 0im)];
 
-rspan = LinRange(0, 4, 500)
+rspan = LinRange(0, 4, 100)
 Pout = zeros(length(rspan))
-
 p = Progress(length(rspan));
 Threads.@threads for i in 1:length(rspan)
     Pout[i] = powerout(rspan[i], ϕinput, scattpos, alphas, ω, J)[1]
     next!(p)
 end
 
-npzwrite("./data/power.npz", Dict("r" => rspan, "P" => Pout))
-npzwrite("./data/scattpos.npz", Dict("scattpos" => scattpos))
+analyticalsum = evalsumm(length(scattpos[:, 1]), ϕinput, scattpos, alphas, ω, J)
+
+npzwrite("./data/data.npz", Dict("scattpos" => scattpos, "analyticalsum" => analyticalsum, "r" => rspan, "P" => Pout))
