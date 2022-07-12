@@ -16,7 +16,7 @@ alphas = [(1. + 2im)
           (2. + 1im)
           (0. - 1im)];
 
-rspan = LinRange(0, 4, 150)
+rspan = LinRange(0, 4, 500)
 Pout = zeros(length(rspan))
 
 p = Progress(length(rspan));

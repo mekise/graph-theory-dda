@@ -14,6 +14,6 @@ include("ComplexGradient.jl")
 include("Power.jl")
 
 export Parameter, Stdd
-export k0, α, greensfun, intmatrix, incfield, totfield, totfieldpolar, complexgrad, complexder, integrand, powerout
+export k0, α, greensfun, intmatrix, incfield, totfield, totfieldpolar, complexgrad, complexder, integrand, powerout, powerout2
 
 end
