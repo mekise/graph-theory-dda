@@ -1,4 +1,4 @@
-function intmatrix(scattpos, alphas, ω, J::Stdd; normalized=false, imagshift=1E-12)
+function intmatrix(scattpos, alphas, ω, J::Stdd; normalized=false, imagshift=1E-23)
     n = size(scattpos, 1)
     M = zeros(ComplexF64, (n, n))
     for i in 1:n
