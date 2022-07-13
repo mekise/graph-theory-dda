@@ -13,7 +13,7 @@ function evalsumm(nscatt, ϕinput, scattpos, alphas, ω, J::Stdd)
     summ = 0
     ϕinc = incfield(ϕinput, scattpos, alphas, ω, J)
     for i in 1:nscatt
-        summ += abs(ϕinc[i])^2 * imag(alphas[i])
+        summ += - imag(conj(ϕinc[i]) * ϕinput[i]) - abs(ϕinc[i])^2 * imag(alphas[i])
     end
-    return -summ
+    return summ
 end
