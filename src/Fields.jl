@@ -15,6 +15,6 @@ function totfield(x, ϕinput, scattpos, alphas, ω, J::Stdd; normalized=false, i
 end
 
 function totfieldpolar(x, ϕinput, scattpos, alphas, ω, J::Stdd; normalized=false, imagshift=1E-23)
-    (r, θ, ϕ) = (x[1], x[2], x[3])
+    r, θ, ϕ = x[1], x[2], x[3]
     return totfield([r*cos(θ)*sin(ϕ), r*sin(θ)*sin(ϕ), r*cos(ϕ)], ϕinput, scattpos, alphas, ω, J; normalized=normalized, imagshift=imagshift)
 end

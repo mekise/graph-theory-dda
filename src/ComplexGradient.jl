@@ -7,7 +7,7 @@ function complexgrad(x, ϕinput, scattpos, alphas, ω, J::Stdd; normalized=false
 end
 
 function complexder(x, ϕinput, scattpos, alphas, ω, J::Stdd; normalized=false, imagshift=1E-23)
-    (r, θ, ϕ) = (x[1], x[2], x[3])
+    r, θ, ϕ = x[1], x[2], x[3]
     freal = r -> real(totfieldpolar([r, θ, ϕ], ϕinput, scattpos, alphas, ω, J; normalized=normalized, imagshift=imagshift))
     fimag = r -> imag(totfieldpolar([r, θ, ϕ], ϕinput, scattpos, alphas, ω, J; normalized=normalized, imagshift=imagshift))
     gradreal = r -> ForwardDiff.derivative(freal, r)
