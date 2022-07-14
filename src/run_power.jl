@@ -19,6 +19,10 @@ alphas = [(1. + 0im)
           (1. + 0im)
           (1. + 0im)];
 
+# scattpos = [0. 0. 0.];
+# alphas = [(1. + 2im)];
+# ϕinput = [(1. + 1im)];
+
 rspan = LinRange(0, 4, 100)
 Pout = zeros(length(rspan))
 p = Progress(length(rspan));
@@ -27,6 +31,9 @@ Threads.@threads for i in 1:length(rspan)
     next!(p)
 end
 
-analyticalsum = evalsumm(length(scattpos[:, 1]), ϕinput, scattpos, alphas, ω, J)
+analyticalsum = zeros(length(scattpos[:, 1]))
+for i in 1:length(scattpos[:, 1])
+    analyticalsum[i] = evalsumm(i, ϕinput, scattpos, alphas, ω, J)
+end
 
 npzwrite("./data/data.npz", Dict("scattpos" => scattpos, "analyticalsum" => analyticalsum, "r" => rspan, "P" => Pout))
