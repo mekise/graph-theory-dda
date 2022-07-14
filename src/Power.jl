@@ -9,11 +9,11 @@ function powerout(r, ϕinput, scattpos, alphas, ω, J::Stdd; normalized=false, i
     return hcubature(f, [0, 0], [π, 2π]; reltol=reltol)
 end
 
-function evalsumm(nscatt, ϕinput, scattpos, alphas, ω, J::Stdd)
+function evalsumm(nscatt, ϕinput, scattpos, alphas, ω, J::Stdd; normalized=false, imagshift=1E-23)
     summ = 0
-    ϕinc = incfield(ϕinput, scattpos, alphas, ω, J)
+    ϕinc = incfield(ϕinput, scattpos, alphas, ω, J; normalized=normalized, imagshift=imagshift)
     for i in 1:nscatt
-        summ += - imag(conj(ϕinc[i]) * ϕinput[i]) - abs(ϕinc[i])^2 * imag(alphas[i])
+        summ += - abs(ϕinc[i])^2 * imag(alphas[i]) + imag(conj(ϕinc[i]) * ϕinput[i])
     end
     return summ
 end

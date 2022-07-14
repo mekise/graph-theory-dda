@@ -8,18 +8,20 @@ using ProgressMeter
 J = Stdd(1.);
 
 ## spherical uniform scatt positions ##
-dim = 4
-maxradius = 5
-rscatt = rand(dim) .*maxradius
-cosθ = rand(dim) .*2 .-1
-sinθ = sqrt.(cosθ.^2)
-ϕ = rand(dim) .*2π
-scattx = rscatt .*cos.(ϕ) .*sinθ
-scatty = rscatt .*sin.(ϕ) .*sinθ
-scattz = rscatt .*cosθ
-scattpos = [scattx scatty scattz]
-alphas = (rand(dim) .+ rand(dim).*1im).*2 .-1 .-1im
-ϕinput = (rand(dim) .+ rand(dim).*1im).*2 .-1 .-1im
+# dim = 4
+# maxradius = 5
+# rscatt = rand(dim) .*maxradius
+# cosθ = rand(dim) .*2 .-1
+# sinθ = sqrt.(cosθ.^2)
+# ϕ = rand(dim) .*2π
+
+# scattx = rscatt .*cos.(ϕ) .*sinθ
+# scatty = rscatt .*sin.(ϕ) .*sinθ
+# scattz = rscatt .*cosθ
+# scattpos = [scattx scatty scattz]
+
+# alphas = (rand(dim) .+ rand(dim).*1im).*2 .-1 .-1im
+# ϕinput = (rand(dim) .+ rand(dim).*1im).*2 .-1 .-1im
 
 ## in-line scatt positions ##
 # scattpos = [[0.5 0. 0.]
@@ -36,16 +38,16 @@ alphas = (rand(dim) .+ rand(dim).*1im).*2 .-1 .-1im
 #           (1. + 0im)];
 
 ## single scatt tests ##
-# scattpos = [0. 0. 0.];
-# alphas = [(1. + 2im)];
-# ϕinput = [(1. + 1im)];
+scattpos = [0. 0. 0.];
+alphas = [(1. + 0im)];
+ϕinput = [(1. + 0im)];
 
-# maxradius = maximum([norm(scattpos[i, :]) for i in 1:length(scattpos[:, 1])])
+maxradius = maximum([norm(scattpos[i, :]) for i in 1:length(scattpos[:, 1])])
 rspan = LinRange(0, maxradius + 1, 50)
 Pout = zeros(length(rspan))
 p = Progress(length(rspan));
 Threads.@threads for i in 1:length(rspan)
-    Pout[i] = powerout(rspan[i], ϕinput, scattpos, alphas, ω, J; imagshift=0)[1]
+    Pout[i] = powerout(rspan[i], ϕinput, scattpos, alphas, ω, J)[1]
     next!(p)
 end
 
