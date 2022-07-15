@@ -44,7 +44,7 @@ J = Stdd(1.);
 # ϕinput = [(1. + 0im)];
 # maxradius = maximum([norm(scattpos[i, :]) for i in 1:length(scattpos[:, 1])])
 
-## Test agains Python ##
+## EP parameters ##
 scattpos = [[0. 0. 0.]
             [2π 0. 0.]]
 alphas = [α(1, 1, 1/(8*π^2))
