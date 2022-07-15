@@ -45,14 +45,15 @@ J = Stdd(1.);
 # maxradius = maximum([norm(scattpos[i, :]) for i in 1:length(scattpos[:, 1])])
 
 ## Test agains Python ##
-scattpos = [[0, 0, 0],
-            [1, 0, 0]]
-alphas = [2., 3.]
-ϕinput = [1., 2.]
+scattpos = [[0. 0. 0.]
+            [2π 0. 0.]]
+alphas = [α(1, 1, 1/(8*π^2))
+          -α(1, 1, 1/(8*π^2))]
+ϕinput = rand(2).+rand(2).*1im
 maxradius = maximum([norm(scattpos[i, :]) for i in 1:length(scattpos[:, 1])])
 
 ## Evaluation ##
-rspan = LinRange(0, maxradius + 5, 80)
+rspan = LinRange(0, maxradius*1.4, 80)
 Pout = zeros(length(rspan))
 Poutexpl = zeros(length(rspan))
 p = Progress(length(rspan));
