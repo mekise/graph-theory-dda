@@ -14,21 +14,29 @@ function poweroutexplicit(r, ϕinput, scattpos, alphas, ω, J::Stdd; normalized=
     incf = incfield(ϕinput, scattpos, alphas, ω, J; normalized=normalized, imagshift=imagshift)
     for i in 1:length(scattpos[:, 1])
         for j in 1:length(scattpos[:, 1])
-            ri = norm([r*cos(x[1])*sin(x[2]), r*sin(x[1])*sin(x[2]), r*cos(x[2])] - scattpos[i, :])
-            rj = norm([r*cos(x[1])*sin(x[2]), r*sin(x[1])*sin(x[2]), r*cos(x[2])] - scattpos[j, :])
-            function f(x, v)
-                res = exp(1im*abs(ri-rj)) /((4π)^2*ri*rj) *(r^2)*sin(x[1])
-                v[1] = real(res)
-                v[2] = imag(res)
+            function f(x)
+                ri = norm([r*cos(x[1])*sin(x[2]), r*sin(x[1])*sin(x[2]), r*cos(x[2])] - scattpos[i, :])
+                rj = norm([r*cos(x[1])*sin(x[2]), r*sin(x[1])*sin(x[2]), r*cos(x[2])] - scattpos[j, :])
+                prefactor = conj(alphas[i])*alphas[j]*conj(incf[i])*incf[j]
+                return imag(prefactor * (exp(1im*(rj-ri+π/2))/(rj*ri) - exp(1im*(ri-rj))/(ri*rj^2))) *(r^2)*sin(x[1])
             end
-            integral = hcubature(2, f, [0, 0], [π, 2π]; reltol=reltol)
-            summ += imag(conj(alphas[i])*alphas[j]*conj(incf[i])*incf[j]*(integral[1][1]+1im*integral[1][2]))
+            integral = hcubature(f, [0, 0], [π, 2π]; reltol=reltol)[1]
+            summ += integral /(4π)^2
         end
     end
     return summ
 end
 
 function evalsumm(nscatt, ϕinput, scattpos, alphas, ω, J::Stdd; normalized=false, imagshift=1E-23)
+    summ = 0
+    ϕinc = incfield(ϕinput, scattpos, alphas, ω, J; normalized=normalized, imagshift=imagshift)
+    for i in 1:nscatt
+        summ += - abs(ϕinc[i])^2 * imag(alphas[i])
+    end
+    return summ
+end
+
+function evalsummcorrected(nscatt, ϕinput, scattpos, alphas, ω, J::Stdd; normalized=false, imagshift=1E-23)
     summ = 0
     ϕinc = incfield(ϕinput, scattpos, alphas, ω, J; normalized=normalized, imagshift=imagshift)
     for i in 1:nscatt

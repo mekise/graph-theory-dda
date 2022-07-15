@@ -8,7 +8,7 @@ using ProgressMeter
 J = Stdd(1.);
 
 ## spherical uniform scatt positions ##
-# dim = 4
+# dim = 6
 # maxradius = 5
 # rscatt = rand(dim) .*maxradius
 # cosθ = rand(dim) .*2 .-1
@@ -36,24 +36,37 @@ J = Stdd(1.);
 #           (1. + 0im)
 #           (1. + 0im)
 #           (1. + 0im)];
+# maxradius = maximum([norm(scattpos[i, :]) for i in 1:length(scattpos[:, 1])])
 
 ## single scatt tests ##
-scattpos = [0. 0. 0.];
-alphas = [(1. + 0im)];
-ϕinput = [(1. + 0im)];
+# scattpos = [0. 0. 0.];
+# alphas = [(1. + 0im)];
+# ϕinput = [(1. + 0im)];
+# maxradius = maximum([norm(scattpos[i, :]) for i in 1:length(scattpos[:, 1])])
 
+## Test agains Python ##
+scattpos = [[0, 0, 0],
+            [1, 0, 0]]
+alphas = [2., 3.]
+ϕinput = [1., 2.]
 maxradius = maximum([norm(scattpos[i, :]) for i in 1:length(scattpos[:, 1])])
-rspan = LinRange(0, maxradius + 1, 50)
+
+## Evaluation ##
+rspan = LinRange(0, maxradius + 5, 80)
 Pout = zeros(length(rspan))
+Poutexpl = zeros(length(rspan))
 p = Progress(length(rspan));
 Threads.@threads for i in 1:length(rspan)
     Pout[i] = powerout(rspan[i], ϕinput, scattpos, alphas, ω, J)[1]
+    Poutexpl[i] = poweroutexplicit(rspan[i], ϕinput, scattpos, alphas, ω, J)[1]
     next!(p)
 end
 
 analyticalsum = zeros(length(scattpos[:, 1]))
+analyticalsumcorrected = zeros(length(scattpos[:, 1]))
 for i in 1:length(scattpos[:, 1])
     analyticalsum[i] = evalsumm(i, ϕinput, scattpos, alphas, ω, J)
+    analyticalsumcorrected[i] = evalsummcorrected(i, ϕinput, scattpos, alphas, ω, J)
 end
 
-npzwrite("./data/data.npz", Dict("scattpos" => scattpos, "analyticalsum" => analyticalsum, "r" => rspan, "P" => Pout))
+npzwrite("./data/data_power.npz", Dict("scattpos" => scattpos, "analyticalsum" => analyticalsum, "analyticalsumcorrected" => analyticalsumcorrected, "r" => rspan, "P" => Pout, "Pexpl" => Poutexpl))
