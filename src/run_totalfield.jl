@@ -5,7 +5,8 @@ using NPZ
 using ProgressMeter
 
 ω = 1.
-J = Stdd(1.);
+J = Stdd(1.)
+normalized = true
 
 ## spherical uniform scatt positions ##
 # dim = 4
@@ -59,9 +60,9 @@ phitot = zeros(ComplexF64, (length(xx), length(yy)))
 p = Progress(length(xx));
 for i in 1:length(xx)
     Threads.@threads for j in 1:length(yy)
-        phitot[j, i] = totfield([xx[i], yy[j], 0], ϕinput, scattpos, alphas, ω, J)
+        phitot[j, i] = totfield([xx[i], yy[j], 0], ϕinput, scattpos, alphas, ω, J; normalized=normalized)
     end
     next!(p)
 end
 
-npzwrite("./data/data_total_field.npz", Dict("scattpos" => scattpos, "xx" => xx, "yy" => yy, "phitot" => phitot))
+npzwrite("./data/totalfieldnorm.npz", Dict("scattpos" => scattpos, "xx" => xx, "yy" => yy, "phitot" => phitot))
