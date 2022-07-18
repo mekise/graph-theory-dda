@@ -54,7 +54,7 @@ alphas = [α(1, 1, 1/(8*π^2))
 maxradius = maximum([norm(scattpos[i, :]) for i in 1:length(scattpos[:, 1])])
 
 ## Evaluation ##
-rspan = LinRange(0, maxradius*1.4, 80)
+rspan = LinRange(0, maxradius*1.4, 100)
 Pout = zeros(length(rspan))
 Poutexpl = zeros(length(rspan))
 p = Progress(length(rspan));
