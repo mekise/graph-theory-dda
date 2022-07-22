@@ -6,7 +6,7 @@ using ProgressMeter
 
 ω = 1.
 J = Stdd(1.)
-normalized = true
+normalized = false
 
 ## spherical uniform scatt positions ##
 # dim = 4
@@ -65,4 +65,4 @@ for i in 1:length(xx)
     next!(p)
 end
 
-npzwrite("./data/totalfieldnorm.npz", Dict("scattpos" => scattpos, "xx" => xx, "yy" => yy, "phitot" => phitot))
+npzwrite("./data/totalfield.npz", Dict("scattpos" => scattpos, "xx" => xx, "yy" => yy, "phitot" => phitot))

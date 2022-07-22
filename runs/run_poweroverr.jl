@@ -6,7 +6,7 @@ using ProgressMeter
 
 ω = 1.
 J = Stdd(1.)
-normalized = true
+normalized = false
 
 ## spherical uniform scatt positions ##
 # dim = 6
@@ -71,4 +71,4 @@ for i in 1:length(scattpos[:, 1])
     analyticalsumcorrected[i] = evalsummcorrected(i, ϕinput, scattpos, alphas, ω, J; normalized=normalized)
 end
 
-npzwrite("./data/poweroverrnorm.npz", Dict("scattpos" => scattpos, "analyticalsum" => analyticalsum, "analyticalsumcorrected" => analyticalsumcorrected, "r" => rspan, "P" => Pout, "Pexpl" => Poutexpl))
+npzwrite("./data/poweroverr.npz", Dict("scattpos" => scattpos, "analyticalsum" => analyticalsum, "analyticalsumcorrected" => analyticalsumcorrected, "r" => rspan, "P" => Pout, "Pexpl" => Poutexpl))

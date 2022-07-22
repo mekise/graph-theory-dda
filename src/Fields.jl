@@ -1,6 +1,9 @@
 function incfield(ϕinput, scattpos, alphas, ω, J::Stdd; normalized=false, imagshift=1E-23)
     M = intmatrix(scattpos, alphas, ω, J; normalized=normalized, imagshift=imagshift)
     ϕinc = M \ ϕinput
+    if normalized
+        ϕinc = M \ diagm(alphas)*ϕinput
+    end
     return ϕinc
 end
 
