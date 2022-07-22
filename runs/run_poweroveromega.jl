@@ -1,4 +1,4 @@
-include("./ScatterersDDA.jl")
+include("../src/ScatterersDDA.jl")
 using .ScatterersDDA
 using LinearAlgebra
 using NPZ
