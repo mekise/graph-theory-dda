@@ -23,7 +23,7 @@ for i in eachindex(xx)
                     [0. yy[i] 0.] # changing the y location of the central scatterer does not change the resulting output power
                     [π 0. 0.]]
         alphas = [α(ω, 1, xx[i]) # it should be α(1, 1, 1/(4*sqrt(2)*π^2))
-                  10^(-15) # α(1, 1, 1000)
+                  10^(4) # α(1, 1, 1000)
                   conj(α(ω, 1, xx[i]))]
         maxradius = maximum([norm(scattpos[i, :]) for i in 1:length(scattpos[:, 1])])
         map[j, i] = powerout(maxradius, ϕinput, scattpos, alphas, ω, J; normalized=normalized, imagshift=0)[1]

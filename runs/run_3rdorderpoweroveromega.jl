@@ -16,14 +16,14 @@ maxradius = maximum([norm(scattpos[i, :]) for i in 1:length(scattpos[:, 1])])
 
 ## Evaluation ##
 ϵ = 0.1
-ωspan = LinRange(1-ϵ, 1+ϵ, 100)
+ωspan = LinRange(1-ϵ, 1+ϵ, 1000)
 Pout = zeros(length(ωspan))
 Poutexpl = zeros(length(ωspan))
 p = Progress(length(ωspan))
 println("Starting...")
 Threads.@threads for i in eachindex(ωspan)
     alphas = [α(ωspan[i], 1, 1/(4*sqrt(2)*π^2)) # it should be α(1, 1, 1/(4*sqrt(2)*π^2))
-              10^(-15) # α(1, 1, 1000)
+              α(ωspan[i], 1, 0.00000001)
               conj(α(ωspan[i], 1, 1/(4*sqrt(2)*π^2)))]
     Pout[i] = powerout(maxradius, ϕinput, scattpos, alphas, ωspan[i], J; normalized=normalized, imagshift=0)[1]
     # Poutexpl[i] = poweroutexplicit(maxradius, ϕinput, scattpos, alphas, ωspan[i], J; normalized=normalized)[1]
