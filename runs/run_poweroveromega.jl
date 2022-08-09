@@ -19,7 +19,7 @@ maxradius = maximum([norm(scattpos[i, :]) for i in 1:length(scattpos[:, 1])])
 Pout = zeros(length(ωspan))
 Poutexpl = zeros(length(ωspan))
 p = Progress(length(ωspan));
-Threads.@threads for i in 1:length(ωspan)
+Threads.@threads for i in eachindex(ωspan)
     alphas = [α(ωspan[i], 1, 1/(8*π^2))
               -α(ωspan[i], 1, 1/(8*π^2))]
     Pout[i] = powerout(maxradius, ϕinput, scattpos, alphas, ωspan[i], J; normalized=normalized)[1]
