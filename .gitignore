@@ -1,2 +1,2 @@
 # ignore gif folder
-./gif/
+gif/gif*.npz
