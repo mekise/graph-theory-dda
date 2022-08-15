@@ -10,14 +10,10 @@ normalized = false
 
 ## EP parameters ##
 ϵ = 0.05
-ωspan = LinRange(ω-ϵ, ω+ϵ, 200)
+rspan = LinRange(sqrt(3)*π-ϵ, sqrt(3)*π+ϵ, 200)
 
 ## EP parameters ##
-scattpos = [[-π 0. 0.]
-            [0. sqrt(3)*π 0.] # equidistant scatterers with G = 1/8/π^2
-            [π 0. 0.]]
 ϕinput = rand(3).+rand(3).*1im
-maxradius = maximum([norm(scattpos[i, :]) for i in 1:length(scattpos[:, 1])])
 
 ###################
 ### NB: there is a conj() in alphas[2] due to inconsistency with the matrix from mathematica.
@@ -35,12 +31,15 @@ xx = LinRange(-10, 10, 200)
 yy = LinRange(-10, 10, 200)
 phitot = zeros(ComplexF64, (length(xx), length(yy)))
 p = Progress(length(xx));
-for k in eachindex(ωspan)
+for k in eachindex(rspan)
+    scattpos = [[-π 0. 0.]
+                [0. rspan[k] 0.] # equidistant scatterers with G = 1/8/π^2
+                [π 0. 0.]]
     for i in eachindex(xx)
         Threads.@threads for j in eachindex(yy)
-            phitot[j, i] = totfield([xx[i], yy[j], 0], ϕinput, scattpos, alphas, ωspan[k], J; normalized=normalized)
+            phitot[j, i] = totfield([xx[i], yy[j], 0], ϕinput, scattpos, alphas, ω, J; normalized=normalized)
         end
     end
     next!(p)
-    npzwrite("./gif/gif"*string(k)*".npz", Dict("omegaspan" => ωspan, "phiinput" => ϕinput, "scattpos" => scattpos, "xx" => xx, "yy" => yy, "phitot" => phitot))
+    npzwrite("./gif/gif"*string(k)*".npz", Dict("rspan" => rspan, "phiinput" => ϕinput, "scattpos" => scattpos, "xx" => xx, "yy" => yy, "phitot" => phitot))
 end

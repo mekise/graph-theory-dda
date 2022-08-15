@@ -12,12 +12,10 @@ normalized = false
 ϵ = 0.05
 ωspan = LinRange(ω-ϵ, ω+ϵ, 200)
 
-## EP parameters ##
 scattpos = [[-π 0. 0.]
             [0. sqrt(3)*π 0.] # equidistant scatterers with G = 1/8/π^2
             [π 0. 0.]]
 ϕinput = rand(3).+rand(3).*1im
-maxradius = maximum([norm(scattpos[i, :]) for i in 1:length(scattpos[:, 1])])
 
 ###################
 ### NB: there is a conj() in alphas[2] due to inconsistency with the matrix from mathematica.
