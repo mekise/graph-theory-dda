@@ -7,6 +7,8 @@ using ProgressMeter
 J = Stdd(1.)
 normalized = false
 
+# this is the set of parameters to reproduce Hodaei matrix for higher order EPs
+
 ## EP parameters ##
 scattpos = [[-π 0. 0.]
             [0. 0. 0.] # changing the y location of the central scatterer does not change the resulting output power
