@@ -12,7 +12,6 @@ normalized = false
 ϵ = 0.05
 rspan = LinRange(sqrt(3)*π-ϵ, sqrt(3)*π+ϵ, 200)
 
-## EP parameters ##
 ϕinput = rand(3).+rand(3).*1im
 
 ###################
