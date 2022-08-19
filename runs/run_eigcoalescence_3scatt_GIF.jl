@@ -8,15 +8,16 @@ using NLsolve
 ω = 1.
 J = Stdd(1.)
 normalized = false
+nscatt = 3
+steps = 400
 
 ###################
 ### EP parameters
 ϵ = 0.02
 rover2 = π
-steps = 400
 rspan = LinRange(sqrt(3)*rover2-ϵ, sqrt(3)*rover2+ϵ, steps)
 
-scattpos = zeros((steps, 3, 3))
+scattpos = zeros((steps, nscatt, 3))
 for i in 1:steps
     scattpos[i, :, :] = [[-rover2 0. 0.]
                          [0. rspan[i] 0.]
@@ -56,12 +57,12 @@ function j!(J, x)
 end
 validsolution = "n"
 while validsolution != "y"
-    global s = nlsolve(f!, j!, 10*(rand(3)+rand(3)*1im), ftol=1e-20, iterations=1_000)
+    global s = nlsolve(f!, j!, 10*(rand(nscatt)+rand(nscatt)*1im), ftol=1e-5, iterations=1_000)
     while s.f_converged == false
-        s = nlsolve(f!, j!, 10*(rand(3)+rand(3)*1im), ftol=1e-20, iterations=1_000)
+        s = nlsolve(f!, j!, 10*(rand(nscatt)+rand(nscatt)*1im), ftol=1e-5, iterations=1_000)
     end
-    s = nlsolve(f!, j!, s.zero, ftol=1e-80, iterations=10_000)
-    FF = [1. + 1im, 1., 1.]
+    s = nlsolve(f!, j!, s.zero, ftol=1e-20, iterations=10_000)
+    FF = ones(nscatt)+ones(nscatt)*1im
     f!(FF, s.zero)
     println("sol = ", s.zero)
     println("\nftol = " * string(s.ftol) * "\nresidual_norm = " * string(s.residual_norm) * "\nFF(alphas) = " * string(FF))
@@ -79,4 +80,4 @@ Threads.@threads for k in eachindex(rspan)
     next!(p)
 end
 
-npzwrite("./data/eigcoalescence_3scatt_nlsolve.npz", Dict("rspan" => rspan, "rover2" => float(rover2), "epsilon" => ϵ, "alphas" => alphas, "scattpos" => scattpos, "eigs" => eigs))
+npzwrite("./data/eigs_3scatt_nlsolve.npz", Dict("rspan" => rspan, "rover2" => float(rover2), "epsilon" => ϵ, "alphas" => alphas, "scattpos" => scattpos, "eigs" => eigs))
