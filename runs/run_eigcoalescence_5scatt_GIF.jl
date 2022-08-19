@@ -22,11 +22,11 @@ rspan = LinRange(a-ϵ, a+ϵ, steps)
 
 scattpos = zeros((steps, nscatt, 3))
 for i in 1:steps
-    scattpos[i, :, :] = [[r13/3 0. 0.]
+    scattpos[i, :, :] = [[r13/2 0. 0.]
                          [0. rspan[i] 0.]
                          [-r13/2 0. 0.]
-                         [-r12 -b 0.]
-                         [r12 -b 0.]]
+                         [-r12/2 -b 0.]
+                         [r12/2 -b 0.]]
 end
 
 ###################
@@ -65,4 +65,4 @@ Threads.@threads for k in eachindex(rspan)
     next!(p)
 end
 
-npzwrite("./data/eigs_5scatt_nlsolve.npz", Dict("rspan" => rspan, "rover2" => float(r), "epsilon" => ϵ, "alphas" => alphas, "scattpos" => scattpos, "eigs" => eigs))
+npzwrite("./data/eigs_5scatt_nlsolve.npz", Dict("rspan" => rspan, "r12" => float(r12), "epsilon" => ϵ, "alphas" => alphas, "scattpos" => scattpos, "eigs" => eigs))

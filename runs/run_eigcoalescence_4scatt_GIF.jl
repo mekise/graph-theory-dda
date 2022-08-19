@@ -61,4 +61,4 @@ Threads.@threads for k in eachindex(rspan)
     next!(p)
 end
 
-npzwrite("./data/eigs_4scatt_nlsolve.npz", Dict("rspan" => rspan, "rover2" => float(r), "epsilon" => ϵ, "alphas" => alphas, "scattpos" => scattpos, "eigs" => eigs))
+npzwrite("./data/eigs_4scatt_nlsolve.npz", Dict("rspan" => rspan, "r" => float(r), "epsilon" => ϵ, "alphas" => alphas, "scattpos" => scattpos, "eigs" => eigs))
