@@ -1,2 +1,1 @@
-# ignore gif folder
-gif/gif*.npz
+data/totalfield_n5_test.npz

@@ -25,6 +25,15 @@ for i in 1:steps
     end
 end
 
+# ϕinput = rand(nscatt).+rand(nscatt).*1im
+ϕplane = r -> exp(1im*k0(ω, J)*r)
+ϕinput  = zeros(ComplexF64, (steps, nscatt))
+for k in 1:steps
+    for i in 1:nscatt
+        ϕinput[k, i] = ϕplane(scattpos[k, i, 1]) # plane wave propagating along the x-axis
+    end
+end
+
 ###################
 ### non-linear system solver
 Gvect = zeros(floor(Int, nscatt/2))+zeros(floor(Int, nscatt/2))*1im
@@ -57,12 +66,27 @@ end
 alphas = s.zero
 
 ###################
-### Evaluation
-p = Progress(length(rspan));
-eigs = zeros(Complex{Float64}, (steps, length(alphas)))
+### Coalescence eigenvalues
+# eigs = zeros(ComplexF64, (steps, length(alphas)))
+# p = Progress(length(rspan));
+# Threads.@threads for k in eachindex(rspan)
+#     eigs[k, :] = eigvals(intmatrix(scattpos[k, :, :], alphas, ω, J; normalized=normalized, imagshift=1E-23))
+#     next!(p)
+# end
+# npzwrite("./data/eigs_n5_test.npz", Dict("rspan" => rspan, "r" => float(r), "epsilon" => ϵ, "alphas" => alphas, "scattpos" => scattpos, "eigs" => eigs))
+
+###################
+### Total field over r
+xx = LinRange(-10, 10, 200)
+yy = LinRange(-10, 10, 200)
+phitot = zeros(ComplexF64, (steps, length(xx), length(yy)))
+p = Progress(steps);
 Threads.@threads for k in eachindex(rspan)
-    eigs[k, :] = eigvals(intmatrix(scattpos[k, :, :], alphas, ω, J; normalized=normalized, imagshift=1E-23))
+    for i in eachindex(xx)
+        for j in eachindex(yy)
+            phitot[k, j, i] = totfield([xx[i], yy[j], 0], ϕinput[k, :], scattpos[k, :, :], alphas, ω, J; normalized=normalized, imagshift=1E-23)
+        end
+    end
     next!(p)
 end
-
-npzwrite("./data/eigs_n5_test.npz", Dict("rspan" => rspan, "r" => float(r), "epsilon" => ϵ, "alphas" => alphas, "scattpos" => scattpos, "eigs" => eigs))
+npzwrite("./data/totalfield_n5_test.npz", Dict("rspan" => rspan, "r" => float(r), "epsilon" => ϵ, "alphas" => alphas, "scattpos" => scattpos, "phiinput" => ϕinput, "xx" => xx, "yy" => yy, "phitot" => phitot))
