@@ -13,6 +13,7 @@ steps = 400
 
 ###################
 ### EP parameters
+ωshift = 0.00001 # shift to lower the EP sensitivity and approach the inequality boundary to have a passive system
 ϵ = 0.02
 r = 2
 rspan = LinRange(r-ϵ, r+ϵ, steps)
@@ -38,7 +39,7 @@ end
 ### non-linear system solver
 Gvect = zeros(floor(Int, nscatt/2))+zeros(floor(Int, nscatt/2))*1im
 for i in eachindex(Gvect)
-    Gvect[i] = greensfun(scattpos[1, 2, :], scattpos[1, 2+i, :], ω+0.00001im, J)
+    Gvect[i] = greensfun(scattpos[1, 2, :], scattpos[1, 2+i, :], ω+ωshift*1im, J)
 end
 G1 = Gvect[1]
 G2 = Gvect[2]
@@ -73,20 +74,20 @@ Threads.@threads for k in eachindex(rspan)
     eigs[k, :] = eigvals(intmatrix(scattpos[k, :, :], alphas, ω, J; normalized=normalized, imagshift=1E-23))
     next!(p)
 end
-npzwrite("./data/eigs_n5_omegaimag.npz", Dict("rspan" => rspan, "r" => float(r), "epsilon" => ϵ, "alphas" => alphas, "scattpos" => scattpos, "eigs" => eigs))
+npzwrite("./data/eigs_n5_omegashift.npz", Dict("rspan" => rspan, "r" => float(r), "epsilon" => ϵ, "alphas" => alphas, "scattpos" => scattpos, "eigs" => eigs))
 
 ###################
 ### Total field over r
-# xx = LinRange(-10, 10, 200)
-# yy = LinRange(-10, 10, 200)
-# phitot = zeros(ComplexF64, (steps, length(xx), length(yy)))
-# p = Progress(steps);
-# Threads.@threads for k in eachindex(rspan)
-#     for i in eachindex(xx)
-#         for j in eachindex(yy)
-#             phitot[k, j, i] = totfield([xx[i], yy[j], 0], ϕinput[k, :], scattpos[k, :, :], alphas, ω, J; normalized=normalized, imagshift=1E-23)
-#         end
-#     end
-#     next!(p)
-# end
-# npzwrite("./data/totalfield_n5_test.npz", Dict("rspan" => rspan, "r" => float(r), "epsilon" => ϵ, "alphas" => alphas, "scattpos" => scattpos, "phiinput" => ϕinput, "xx" => xx, "yy" => yy, "phitot" => phitot))
+xx = LinRange(-10, 10, 200)
+yy = LinRange(-10, 10, 200)
+phitot = zeros(ComplexF64, (steps, length(xx), length(yy)))
+p = Progress(steps);
+Threads.@threads for k in eachindex(rspan)
+    for i in eachindex(xx)
+        for j in eachindex(yy)
+            phitot[k, j, i] = totfield([xx[i], yy[j], 0], ϕinput[k, :], scattpos[k, :, :], alphas, ω, J; normalized=normalized, imagshift=1E-23)
+        end
+    end
+    next!(p)
+end
+npzwrite("./data/totalfield_n5_omegashift.npz", Dict("rspan" => rspan, "r" => float(r), "epsilon" => ϵ, "alphas" => alphas, "scattpos" => scattpos, "phiinput" => ϕinput, "xx" => xx, "yy" => yy, "phitot" => phitot))
