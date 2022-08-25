@@ -9,7 +9,7 @@ using NLsolve
 J = Stdd(1.)
 normalized = false
 nscatt = 5
-rsteps = 10
+rsteps = 20
 
 ###################
 ### EP parameters
@@ -98,7 +98,7 @@ alphas = s.zero
 ### Power output over r
 # maxradius = maximum([norm(scattpos[end, i, :]) for i in eachindex(scattpos[end, :, 1])])
 maxradius = 10
-ωsteps = 100
+ωsteps = 200
 ωspan = LinRange(ω-0.01, ω+0.01, ωsteps)
 Pout = zeros((rsteps, ωsteps))
 p = Progress(rsteps);
