@@ -9,17 +9,17 @@ using NLsolve
 J = Stdd(1.)
 normalized = false
 nscatt = 5
-steps = 400
+rsteps = 10
 
 ###################
 ### EP parameters
 ωshift = 0.00001 # shift to lower the EP sensitivity and approach the inequality boundary to have a passive system
 ϵ = 0.02
 r = 2
-rspan = LinRange(r-ϵ, r+ϵ, steps)
+rspan = LinRange(r-ϵ, r+ϵ, rsteps)
 
-scattpos = zeros((steps, nscatt, 3))
-for i in 1:steps
+scattpos = zeros((rsteps, nscatt, 3))
+for i in 1:rsteps
     scattpos[i, 1, :] = [rspan[i] 0. 0.]
     for j in 1:nscatt-1
         scattpos[i, j+1, :] = [r*cos(2π*j/nscatt) r*sin(2π*j/nscatt) 0.]
@@ -28,8 +28,8 @@ end
 
 # ϕinput = rand(nscatt).+rand(nscatt).*1im
 ϕplane = r -> exp(1im*k0(ω, J)*r)
-ϕinput  = zeros(ComplexF64, (steps, nscatt))
-for k in 1:steps
+ϕinput  = zeros(ComplexF64, (rsteps, nscatt))
+for k in 1:rsteps
     for i in 1:nscatt
         ϕinput[k, i] = ϕplane(scattpos[k, i, 1]) # plane wave propagating along the x-axis
     end
@@ -68,26 +68,45 @@ alphas = s.zero
 
 ###################
 ### Coalescence eigenvalues
-eigs = zeros(ComplexF64, (steps, length(alphas)))
-p = Progress(length(rspan));
-Threads.@threads for k in eachindex(rspan)
-    eigs[k, :] = eigvals(intmatrix(scattpos[k, :, :], alphas, ω, J; normalized=normalized, imagshift=1E-23))
-    next!(p)
-end
-npzwrite("./data/eigs_n5_omegashift.npz", Dict("rspan" => rspan, "r" => float(r), "epsilon" => ϵ, "alphas" => alphas, "scattpos" => scattpos, "eigs" => eigs))
+# eigs = zeros(ComplexF64, (rsteps, length(alphas)))
+# p = Progress(length(rspan));
+# println("Starting...")
+# Threads.@threads for k in eachindex(rspan)
+#     eigs[k, :] = eigvals(intmatrix(scattpos[k, :, :], alphas, ω, J; normalized=normalized, imagshift=1E-23))
+#     next!(p)
+# end
+# npzwrite("./data/eigs_n5_omegashift.npz", Dict("rspan" => rspan, "r" => float(r), "epsilon" => ϵ, "alphas" => alphas, "scattpos" => scattpos, "eigs" => eigs))
 
 ###################
 ### Total field over r
-xx = LinRange(-10, 10, 200)
-yy = LinRange(-10, 10, 200)
-phitot = zeros(ComplexF64, (steps, length(xx), length(yy)))
-p = Progress(steps);
-Threads.@threads for k in eachindex(rspan)
-    for i in eachindex(xx)
-        for j in eachindex(yy)
-            phitot[k, j, i] = totfield([xx[i], yy[j], 0], ϕinput[k, :], scattpos[k, :, :], alphas, ω, J; normalized=normalized, imagshift=1E-23)
-        end
+# xx = LinRange(-10, 10, 200)
+# yy = LinRange(-10, 10, 200)
+# phitot = zeros(ComplexF64, (rsteps, length(xx), length(yy)))
+# p = Progress(rsteps);
+# println("Starting...")
+# Threads.@threads for k in eachindex(rspan)
+#     for i in eachindex(xx)
+#         for j in eachindex(yy)
+#             phitot[k, j, i] = totfield([xx[i], yy[j], 0], ϕinput[k, :], scattpos[k, :, :], alphas, ω, J; normalized=normalized, imagshift=1E-23)
+#         end
+#     end
+#     next!(p)
+# end
+# npzwrite("./data/totalfield_n5_omegashift.npz", Dict("rspan" => rspan, "r" => float(r), "epsilon" => ϵ, "alphas" => alphas, "scattpos" => scattpos, "phiinput" => ϕinput, "xx" => xx, "yy" => yy, "phitot" => phitot))
+
+###################
+### Power output over r
+# maxradius = maximum([norm(scattpos[end, i, :]) for i in eachindex(scattpos[end, :, 1])])
+maxradius = 10
+ωsteps = 100
+ωspan = LinRange(ω-0.01, ω+0.01, ωsteps)
+Pout = zeros((rsteps, ωsteps))
+p = Progress(rsteps);
+println("Starting...")
+Threads.@threads for k in 1:rsteps
+    for i in 1:ωsteps
+        Pout[k, i] = poweroutexplicit(maxradius, ϕinput[k, :], scattpos[k, :, :], alphas, ωspan[i], J; normalized=normalized)[1]
     end
     next!(p)
 end
-npzwrite("./data/totalfield_n5_omegashift.npz", Dict("rspan" => rspan, "r" => float(r), "epsilon" => ϵ, "alphas" => alphas, "scattpos" => scattpos, "phiinput" => ϕinput, "xx" => xx, "yy" => yy, "phitot" => phitot))
+npzwrite("./data/poweroveromega_n5_omegashift.npz", Dict("rspan" => rspan, "omegaspan" => ωspan, "r" => float(r), "epsilon" => ϵ, "alphas" => alphas, "scattpos" => scattpos, "phiinput" => ϕinput, "Pout" => Pout))
