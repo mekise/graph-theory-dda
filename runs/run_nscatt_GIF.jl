@@ -9,11 +9,11 @@ using NLsolve
 J = Stdd(1.)
 normalized = false
 nscatt = 5
-rsteps = 20
+rsteps = 400 # around 40 for power output. around 400 for eigs coalescence
 
 ###################
 ### EP parameters
-ωshift = 0.00001 # shift to lower the EP sensitivity and approach the inequality boundary to have a passive system
+ωshift = 0. # shift to lower the EP sensitivity and approach the inequality boundary to have a passive system
 ϵ = 0.02
 r = 2
 rspan = LinRange(r-ϵ, r+ϵ, rsteps)
@@ -68,14 +68,16 @@ alphas = s.zero
 
 ###################
 ### Coalescence eigenvalues
-# eigs = zeros(ComplexF64, (rsteps, length(alphas)))
-# p = Progress(length(rspan));
-# println("Starting...")
-# Threads.@threads for k in eachindex(rspan)
-#     eigs[k, :] = eigvals(intmatrix(scattpos[k, :, :], alphas, ω, J; normalized=normalized, imagshift=1E-23))
-#     next!(p)
-# end
-# npzwrite("./data/eigs_n5_omegashift.npz", Dict("rspan" => rspan, "r" => float(r), "epsilon" => ϵ, "alphas" => alphas, "scattpos" => scattpos, "eigs" => eigs))
+eigs = zeros(ComplexF64, (rsteps, length(alphas)))
+eigvs = zeros(ComplexF64, (rsteps, length(alphas), length(alphas)))
+p = Progress(length(rspan));
+println("Starting...")
+Threads.@threads for k in eachindex(rspan)
+    eigs[k, :] = eigvals(intmatrix(scattpos[k, :, :], alphas, ω, J; normalized=normalized, imagshift=1E-23))
+    eigvs[k, :, :] = eigvecs(intmatrix(scattpos[k, :, :], alphas, ω, J; normalized=normalized, imagshift=1E-23))
+    next!(p)
+end
+npzwrite("./data/eigs_n5_omegashift.npz", Dict("rspan" => rspan, "r" => float(r), "epsilon" => ϵ, "alphas" => alphas, "scattpos" => scattpos, "eigs" => eigs, "eigvs" => eigvs))
 
 ###################
 ### Total field over r
@@ -97,16 +99,16 @@ alphas = s.zero
 ###################
 ### Power output over r
 # maxradius = maximum([norm(scattpos[end, i, :]) for i in eachindex(scattpos[end, :, 1])])
-maxradius = 10
-ωsteps = 200
-ωspan = LinRange(ω-0.01, ω+0.01, ωsteps)
-Pout = zeros((rsteps, ωsteps))
-p = Progress(rsteps);
-println("Starting...")
-Threads.@threads for k in 1:rsteps
-    for i in 1:ωsteps
-        Pout[k, i] = poweroutexplicit(maxradius, ϕinput[k, :], scattpos[k, :, :], alphas, ωspan[i], J; normalized=normalized)[1]
-    end
-    next!(p)
-end
-npzwrite("./data/poweroveromega_n5_omegashift.npz", Dict("rspan" => rspan, "omegaspan" => ωspan, "r" => float(r), "epsilon" => ϵ, "alphas" => alphas, "scattpos" => scattpos, "phiinput" => ϕinput, "Pout" => Pout))
+# maxradius = 10
+# ωsteps = 200
+# ωspan = LinRange(ω-0.01, ω+0.01, ωsteps)
+# Pout = zeros((rsteps, ωsteps))
+# p = Progress(rsteps);
+# println("Starting...")
+# Threads.@threads for k in 1:rsteps
+#     for i in 1:ωsteps
+#         Pout[k, i] = poweroutexplicit(maxradius, ϕinput[k, :], scattpos[k, :, :], alphas, ωspan[i], J; normalized=normalized)[1]
+#     end
+#     next!(p)
+# end
+# npzwrite("./data/poweroveromega_n5_omegashift.npz", Dict("rspan" => rspan, "omegaspan" => ωspan, "r" => float(r), "epsilon" => ϵ, "alphas" => alphas, "scattpos" => scattpos, "phiinput" => ϕinput, "Pout" => Pout))
