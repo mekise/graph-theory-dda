@@ -11,13 +11,12 @@ normalized = false
 nscatt = 5
 rsteps = 400 # around 40 for power output. around 400 for eigs coalescence
 
-###################
-### EP parameters
+# EP parameters
+
 ωshift = 0. # shift to lower the EP sensitivity and approach the inequality boundary to have a passive system
 ϵ = 0.02
 r = 2
 rspan = LinRange(r-ϵ, r+ϵ, rsteps)
-
 scattpos = zeros((rsteps, nscatt, 3))
 for i in 1:rsteps
     scattpos[i, 1, :] = [rspan[i] 0. 0.]
@@ -35,8 +34,8 @@ for k in 1:rsteps
     end
 end
 
-###################
-### non-linear system solver
+# non-linear system solver
+
 Gvect = zeros(floor(Int, nscatt/2))+zeros(floor(Int, nscatt/2))*1im
 for i in eachindex(Gvect)
     Gvect[i] = greensfun(scattpos[1, 2, :], scattpos[1, 2+i, :], ω+ωshift*1im, J)
@@ -66,8 +65,7 @@ while validsolution != "y"
 end
 alphas = s.zero
 
-###################
-### Coalescence eigenvalues
+# Coalescence eigenvalues and eigenvectors over r
 eigs = zeros(ComplexF64, (rsteps, length(alphas)))
 eigvs = zeros(ComplexF64, (rsteps, length(alphas), length(alphas)))
 p = Progress(length(rspan));
@@ -79,8 +77,8 @@ Threads.@threads for k in eachindex(rspan)
 end
 npzwrite("./data/eigs_n5_omegashift.npz", Dict("rspan" => rspan, "r" => float(r), "epsilon" => ϵ, "alphas" => alphas, "scattpos" => scattpos, "eigs" => eigs, "eigvs" => eigvs))
 
-###################
-### Total field over r
+# Total field over r
+
 # xx = LinRange(-10, 10, 200)
 # yy = LinRange(-10, 10, 200)
 # phitot = zeros(ComplexF64, (rsteps, length(xx), length(yy)))
@@ -96,8 +94,8 @@ npzwrite("./data/eigs_n5_omegashift.npz", Dict("rspan" => rspan, "r" => float(r)
 # end
 # npzwrite("./data/totalfield_n5_omegashift.npz", Dict("rspan" => rspan, "r" => float(r), "epsilon" => ϵ, "alphas" => alphas, "scattpos" => scattpos, "phiinput" => ϕinput, "xx" => xx, "yy" => yy, "phitot" => phitot))
 
-###################
-### Power output over r
+# Power output over r
+
 # maxradius = maximum([norm(scattpos[end, i, :]) for i in eachindex(scattpos[end, :, 1])])
 # maxradius = 10
 # ωsteps = 200
