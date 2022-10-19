@@ -9,7 +9,7 @@ using Combinatorics
 ω = 1.
 J = Stdd(1.)
 nscatt = 5
-rsteps = 40 # around 40 for power output. around 400 for eigs coalescence
+rsteps = 100 # around 40 for power output. around 400 for eigs coalescence
 
 # EP parameters
 ωshift = 0. # shift to lower the EP sensitivity and approach the inequality boundary to have a passive system
@@ -37,7 +37,7 @@ end
 # non-linear system solver
 function f!(F, x)
     for cindex in 1:nscatt
-        F[cindex] = sum(det.([intmatrix(scattpos[200, :, :], x, ω+ωshift, J)[setdiff(1:end, i), setdiff(1:end, i)] for i in combinations([j for j in 1:nscatt], cindex-1)]))
+        F[cindex] = sum(det.([intmatrix(scattpos[floor(Int, rsteps/2), :, :], x, ω+ωshift, J)[setdiff(1:end, i), setdiff(1:end, i)] for i in combinations([j for j in 1:nscatt], cindex-1)]))
     end
 end
 validsolution = "n"
@@ -82,7 +82,7 @@ Threads.@threads for k in eachindex(rspan)
     end
     next!(p)
 end
-npzwrite("./data/totalfield_.npz", Dict("rspan" => rspan, "r" => float(r), "epsilon" => ϵ, "alphas" => alphas, "scattpos" => scattpos, "phiinput" => ϕinput, "xx" => xx, "yy" => yy, "phitot" => phitot))
+npzwrite("./data/totalfield_new.npz", Dict("rspan" => rspan, "r" => float(r), "epsilon" => ϵ, "alphas" => alphas, "scattpos" => scattpos, "phiinput" => ϕinput, "xx" => xx, "yy" => yy, "phitot" => phitot))
 
 # Power output over r
 # maxradius = maximum([norm(scattpos[end, i, :]) for i in eachindex(scattpos[end, :, 1])])
