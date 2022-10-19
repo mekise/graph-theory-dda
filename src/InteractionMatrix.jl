@@ -1,4 +1,4 @@
-function intmatrix(scattpos, alphas, ω, J::Stdd; normalized=false, imagshift=1E-23)
+function intmatrix(scattpos, alphas, ω, J::Stdd; imagshift=1E-23)
     n = size(scattpos, 1)
     M = zeros(ComplexF64, (n, n))
     for i in 1:n
@@ -7,8 +7,5 @@ function intmatrix(scattpos, alphas, ω, J::Stdd; normalized=false, imagshift=1E
         end
     end
     M[diagind(M)] .= 1 ./ alphas
-    if normalized
-        M = diagm(alphas)*M
-    end
     return M
 end
