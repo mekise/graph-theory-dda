@@ -28,7 +28,9 @@ end
 # Total field
 xx = LinRange(-10, 10, 1000)
 phitot = zeros(ComplexF64, (length(xx)))
+approxphitot = zeros(ComplexF64, (length(xx)))
 for i in eachindex(xx)
-    phitot[i] = totfield([xx[i], 0.5, 0], ϕinput, scattpos, alphas, ω, J; imagshift=1E-23) + ϕplane(xx[i])
+    phitot[i] = totfield([xx[i], 0.5, 0], ϕinput, scattpos, alphas, ω, J; imagshift=1E-23)# + ϕplane(xx[i])
+    approxphitot[i] = totfield([xx[i], 0.5, 0], ϕinput, scattpos, alphas, ω, J; imagshift=1E-23)# + ϕplane(xx[i])
 end
-npzwrite("./data/approximation.npz", Dict("r" => float(r), "alphas" => alphas, "scattpos" => scattpos, "phiinput" => ϕinput, "xx" => xx, "phitot" => phitot))
+npzwrite("./data/approximation.npz", Dict("r" => float(r), "alphas" => alphas, "scattpos" => scattpos, "phiinput" => ϕinput, "xx" => xx, "phitot" => phitot, "approxphitot" => approxphitot))
