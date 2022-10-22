@@ -60,9 +60,9 @@ function permsingleinversion(M)
     # return [result[:, i] for i in axes(result, 2)]
 end
 
-function approx4by4(scattpos, alphas, ω, J::Stdd; imagshift=1E-23)
-    G1 = greensfun(scattpos[1], scattpos[2], ω, J; imagshift=imagshift)
-    G2 = greensfun(scattpos[1], scattpos[3], ω, J; imagshift=imagshift)
+function weak4by4(scattpos, alphas, ω, J::Stdd; imagshift=1E-23)
+    G1 = greensfun(scattpos[1,:], scattpos[2,:], ω, J; imagshift=imagshift)
+    G2 = greensfun(scattpos[1,:], scattpos[3,:], ω, J; imagshift=imagshift)
     matrix = zeros(ComplexF64, (4,4))
     matrix[1,1] = -(G1^2/alphas[1]) - G2^2/alphas[2] - G1^2/alphas[3] + 1/(alphas[1]*alphas[2]*alphas[3])
     matrix[1,2] = -1 * (-((G1*G2)/alphas[1])-(G1*G2)/alphas[2]-G1/(alphas[1]*alphas[2]))
@@ -83,9 +83,10 @@ function approx4by4(scattpos, alphas, ω, J::Stdd; imagshift=1E-23)
     matrix ./= det
 end
 
-function approxincfield(ϕinput, scattpos, alphas, ω, J::Stdd; returnfield=false, imagshift=1E-23)
-    M = approx4by4(scattpos, alphas, ω, J; imagshift=imagshift)
-    ϕinc_tilde = M \ (ϕinput./alphas)
+function weakincfield(ϕinput, scattpos, alphas, ω, J::Stdd; returnfield=false, imagshift=1E-23)
+    M = weak4by4(scattpos, alphas, ω, J; imagshift=imagshift)
+    ϕinc_tilde = similar(ϕinput)
+    mul!(ϕinc_tilde, M, (ϕinput./alphas))
     if returnfield
         return ϕinc_tilde.*alphas
     else
@@ -93,8 +94,52 @@ function approxincfield(ϕinput, scattpos, alphas, ω, J::Stdd; returnfield=fals
     end
 end
 
-function approxtotfield(x, ϕinput, scattpos, alphas, ω, J::Stdd; imagshift=1E-23)
-    ϕinc_tilde = approxincfield(ϕinput, scattpos, alphas, ω, J; imagshift=imagshift)
+function weaktotfield(x, ϕinput, scattpos, alphas, ω, J::Stdd; imagshift=1E-23)
+    ϕinc_tilde = weakincfield(ϕinput, scattpos, alphas, ω, J; imagshift=imagshift)
+    n = size(scattpos, 1)
+    ϕtot = 0. + 0im
+    for i in 1:n
+        ϕtot += ϕinc_tilde[i]*greensfun(x, scattpos[i, :], ω, J; imagshift=imagshift)
+    end
+    return ϕtot
+end
+
+function strong4by4(scattpos, alphas, ω, J::Stdd; imagshift=1E-23)
+    G1 = greensfun(scattpos[1,:], scattpos[2,:], ω, J; imagshift=imagshift)
+    G2 = greensfun(scattpos[1,:], scattpos[3,:], ω, J; imagshift=imagshift)
+    matrix = zeros(ComplexF64, (4,4))
+    matrix[1,1] = -2*G1^2*G2
+    matrix[1,2] = G1*G2^2
+    matrix[1,3] = 2*G1^2*G2-G2^3
+    matrix[1,4] = G1*G2^2
+    matrix[2,2] = -2*G1^2*G2
+    matrix[2,3] = G1*G2^2
+    matrix[2,4] = 2*G1^2*G2-G2^3
+    matrix[3,3] = -2*G1^2*G2
+    matrix[3,4] = G1*G2^2
+    matrix[4,4] = -2*G1^2*G2
+    for i in 1:4
+        for j in i+1:4
+            matrix[j,i] = matrix[i,j]
+        end
+    end
+    det = G2^4-4*G1^2*G2^2-2*G1^2*G2*(1/alphas[1]+1/alphas[2]+1/alphas[3]+1/alphas[4])
+    matrix ./= det
+end
+
+function strongincfield(ϕinput, scattpos, alphas, ω, J::Stdd; returnfield=false, imagshift=1E-23)
+    M = strong4by4(scattpos, alphas, ω, J; imagshift=imagshift)
+    ϕinc_tilde = similar(ϕinput)
+    mul!(ϕinc_tilde, M, (ϕinput./alphas))
+    if returnfield
+        return ϕinc_tilde.*alphas
+    else
+        return ϕinc_tilde
+    end
+end
+
+function strongtotfield(x, ϕinput, scattpos, alphas, ω, J::Stdd; imagshift=1E-23)
+    ϕinc_tilde = strongincfield(ϕinput, scattpos, alphas, ω, J; imagshift=imagshift)
     n = size(scattpos, 1)
     ϕtot = 0. + 0im
     for i in 1:n

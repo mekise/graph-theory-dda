@@ -18,6 +18,6 @@ include("Approximation.jl")
 export Parameter, Stdd
 export k0, α, greensfun, intmatrix, incfield, totfield, totfieldpolar, complexgrad, complexder
 export integrand, powerout, poweroutexplicit, evalsumm, evalsummcorrected
-export determinant, det_weak, permsingleinversion, approx4by4, approxincfield, approxtotfield
+export determinant, det_weak, permsingleinversion, weak4by4, weakincfield, weaktotfield, strong4by4, strongincfield, strongtotfield
 
 end
