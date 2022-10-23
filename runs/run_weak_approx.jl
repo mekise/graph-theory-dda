@@ -10,7 +10,7 @@ using Combinatorics
 J = Stdd(1.)
 nscatt = 4
 
-alphas = (rand(nscatt) .+ rand(nscatt).*1im)
+# alphas = (rand(nscatt) .+ rand(nscatt).*1im)
 
 r = 14
 scattpos = zeros((nscatt, 3))
@@ -18,8 +18,7 @@ for j in 1:nscatt
     scattpos[j, :] = [r*cos(2π*j/nscatt) r*sin(2π*j/nscatt) 0.]
 end
 
-println(greensfun(scattpos[1,:], scattpos[2,:], ω, J))
-println(greensfun(scattpos[1,:], scattpos[3,:], ω, J))
+navg = 1000
 
 # ϕinput = rand(nscatt).+rand(nscatt).*1im
 ϕplane = r -> exp(1im*k0(ω, J)*r)
@@ -45,10 +44,18 @@ xx = LinRange(-20, 20, 200)
 yy = LinRange(-20, 20, 200)
 phitot = zeros(ComplexF64, (length(xx), length(yy)))
 weakphitot = zeros(ComplexF64, (length(xx), length(yy)))
-for i in eachindex(xx)
-    for j in eachindex(yy)
-        phitot[j, i] = totfield([xx[i], yy[j], 0], ϕinput, scattpos, alphas, ω, J; imagshift=1E-23)
-        weakphitot[j, i] = weaktotfield([xx[i], yy[j], 0], ϕinput, scattpos, alphas, ω, J; imagshift=1E-23)
+deviationavg = zeros(Float64, (length(xx), length(yy)))
+for k in 1:navg
+    alphas = (rand(nscatt) .+ rand(nscatt).*1im)
+    for i in eachindex(xx)
+        for j in eachindex(yy)
+            phitot[j, i] = totfield([xx[i], yy[j], 0], ϕinput, scattpos, alphas, ω, J; imagshift=1E-23)
+            weakphitot[j, i] = strongtotfield([xx[i], yy[j], 0], ϕinput, scattpos, alphas, ω, J; imagshift=1E-23)
+        end
     end
+    deviationavg .+= abs.(phitot.-weakphitot) ./ abs.(phitot)
 end
-npzwrite("./data/weak_approx_map.npz", Dict("r" => float(r), "alphas" => alphas, "scattpos" => scattpos, "phiinput" => ϕinput, "xx" => xx, "yy" => yy, "phitot" => phitot, "weakphitot" => weakphitot))
+deviationavg .= deviationavg./navg
+
+# npzwrite("./data/weak_approx_map.npz", Dict("r" => float(r), "alphas" => alphas, "scattpos" => scattpos, "phiinput" => ϕinput, "xx" => xx, "yy" => yy, "phitot" => phitot, "strongphitot" => strongphitot))
+npzwrite("./data/weak_approx_avg.npz", Dict("r" => float(r), "scattpos" => scattpos, "phiinput" => ϕinput, "xx" => xx, "yy" => yy, "deviationavg" => deviationavg))
