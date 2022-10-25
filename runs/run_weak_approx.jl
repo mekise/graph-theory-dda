@@ -12,7 +12,7 @@ nscatt = 4
 
 # alphas = (rand(nscatt) .+ rand(nscatt).*1im)
 
-r = 14
+r = 600
 scattpos = zeros((nscatt, 3))
 for j in 1:nscatt
     scattpos[j, :] = [r*cos(2π*j/nscatt) r*sin(2π*j/nscatt) 0.]
@@ -28,34 +28,21 @@ for i in 1:nscatt
 end
 
 # Total field
-# xx = LinRange(-10, 10, 1000)
-# phitot = zeros(ComplexF64, (length(xx)))
-# weakphitot = zeros(ComplexF64, (length(xx)))
-# strongphitot = zeros(ComplexF64, (length(xx)))
-# for i in eachindex(xx)
-#     phitot[i] = totfield([xx[i], rslice, 0], ϕinput, scattpos, alphas, ω, J; imagshift=1E-23)# + ϕplane(xx[i])
-#     weakphitot[i] = weaktotfield([xx[i], rslice, 0], ϕinput, scattpos, alphas, ω, J; imagshift=1E-23)# + ϕplane(xx[i])
-#     strongphitot[i] = strongtotfield([xx[i], rslice, 0], ϕinput, scattpos, alphas, ω, J; imagshift=1E-23)# + ϕplane(xx[i])
-# end
-# npzwrite("./data/weak_approx.npz", Dict("r" => float(r), "alphas" => alphas, "scattpos" => scattpos, "phiinput" => ϕinput, "xx" => xx, "phitot" => phitot, "weakphitot" => weakphitot, "strongphitot" => strongphitot))
-
-# Total field - map
-xx = LinRange(-20, 20, 200)
-yy = LinRange(-20, 20, 200)
+xx = LinRange(-1000, 1000, 200)
+yy = LinRange(-1000, 1000, 200)
 phitot = zeros(ComplexF64, (length(xx), length(yy)))
-weakphitot = zeros(ComplexF64, (length(xx), length(yy)))
+phitotapprox = zeros(ComplexF64, (length(xx), length(yy)))
 deviationavg = zeros(Float64, (length(xx), length(yy)))
 for k in 1:navg
     alphas = (rand(nscatt) .+ rand(nscatt).*1im)
     for i in eachindex(xx)
         for j in eachindex(yy)
             phitot[j, i] = totfield([xx[i], yy[j], 0], ϕinput, scattpos, alphas, ω, J; imagshift=1E-23)
-            weakphitot[j, i] = strongtotfield([xx[i], yy[j], 0], ϕinput, scattpos, alphas, ω, J; imagshift=1E-23)
+            phitotapprox[j, i] = weaktotfield([xx[i], yy[j], 0], ϕinput, scattpos, alphas, ω, J; imagshift=1E-23)
         end
     end
-    deviationavg .+= abs.(phitot.-weakphitot) ./ abs.(phitot)
+    deviationavg .+= abs.(phitot.-phitotapprox) ./ abs.(phitot)
 end
-deviationavg .= deviationavg./navg
+deviationavg ./= navg
 
-# npzwrite("./data/weak_approx_map.npz", Dict("r" => float(r), "alphas" => alphas, "scattpos" => scattpos, "phiinput" => ϕinput, "xx" => xx, "yy" => yy, "phitot" => phitot, "strongphitot" => strongphitot))
-npzwrite("./data/weak_approx_avg.npz", Dict("r" => float(r), "scattpos" => scattpos, "phiinput" => ϕinput, "xx" => xx, "yy" => yy, "deviationavg" => deviationavg))
+npzwrite("./data/weak_approx_map.npz", Dict("r" => float(r), "scattpos" => scattpos, "phiinput" => ϕinput, "xx" => xx, "yy" => yy, "deviationavg" => deviationavg, "phitot" => phitot, "weakphitot" => phitotapprox))
