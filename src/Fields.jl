@@ -1,8 +1,8 @@
 function incfield(ϕinput, scattpos, alphas, ω, J::Stdd; returnfield=false, imagshift=1E-23)
     M = intmatrix(scattpos, alphas, ω, J; imagshift=imagshift)
-    ϕinc_tilde = M \ (ϕinput./alphas)
+    ϕinc_tilde = M \ ϕinput
     if returnfield
-        return ϕinc_tilde.*alphas
+        return ϕinc_tilde./alphas
     else
         return ϕinc_tilde
     end

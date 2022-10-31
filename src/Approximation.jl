@@ -64,22 +64,25 @@ function weak4by4(scattpos, alphas, ω, J::Stdd; imagshift=1E-23)
     G1 = greensfun(scattpos[1,:], scattpos[2,:], ω, J; imagshift=imagshift)
     G2 = greensfun(scattpos[1,:], scattpos[3,:], ω, J; imagshift=imagshift)
     matrix = zeros(ComplexF64, (4,4))
-    matrix[1,1] = -(G1^2/alphas[1]) - G2^2/alphas[2] - G1^2/alphas[3] + 1/(alphas[1]*alphas[2]*alphas[3])
-    matrix[1,2] = -1 * (-((G1*G2)/alphas[1])-(G1*G2)/alphas[2]-G1/(alphas[1]*alphas[2]))
-    matrix[1,3] = G1^2/alphas[1]+G1^2/alphas[3]+G2/(alphas[1]*alphas[3])
-    matrix[1,4] = -1 * (-((G1*G2)/alphas[2]) - (G1*G2)/alphas[3] - G1/(alphas[2]*alphas[3]))
-    matrix[2,2] = -(G2^2/alphas[1]) - G1^2/alphas[2] - G1^2/alphas[4] + 1/(alphas[1]*alphas[2]*alphas[4])
-    matrix[2,3] = -1 * (-((G1*G2)/alphas[1]) - (G1*G2)/alphas[4] - G1/(alphas[1]*alphas[4]))
-    matrix[2,4] = +(G1^2/alphas[2]) + G1^2/alphas[4] + G2/(alphas[2]*alphas[4])
-    matrix[3,3] = -(G1^2/alphas[1]) - G1^2/alphas[3] - G2^2/alphas[4] + 1/(alphas[1]*alphas[3]*alphas[4])
-    matrix[3,4] = -1 * (-((G1*G2)/alphas[3]) - (G1*G2)/alphas[4] - G1/(alphas[3]*alphas[4]))
-    matrix[4,4] = -(G1^2/alphas[2]) - G2^2/alphas[3] - G1^2/alphas[4] + 1/(alphas[2]*alphas[3]*alphas[4])
+    matrix[1,1] = -G1^2/alphas[2] -G2^2/alphas[3] -G1^2/alphas[4] +1/(alphas[2]*alphas[3]*alphas[4])
+    matrix[1,2] = -G1*G2/alphas[3] -G1*G2/alphas[4] -G1/(alphas[3]*alphas[4])
+    matrix[1,3] = +G1^2/alphas[2] +G1^2/alphas[4] +G2/(alphas[2]*alphas[4])
+    matrix[1,4] = -G1*G2/alphas[2] -G1*G2/alphas[3] -G1/(alphas[2]*alphas[3])
+    matrix[2,2] = -G1^2/alphas[1] -G1^2/alphas[3] -G2^2/alphas[4] +1/(alphas[1]*alphas[3]*alphas[4])
+    matrix[2,3] = -G1*G2/alphas[1] -G1*G2/alphas[4] -G1/(alphas[1]*alphas[4])
+    matrix[2,4] = +G1^2/alphas[1] +G1^2/alphas[3] +G2/(alphas[1]*alphas[3])
+    matrix[3,3] = -G2^2/alphas[1] -G1^2/alphas[2] -G1^2/alphas[4] +1/(alphas[1]*alphas[2]*alphas[4])
+    matrix[3,4] = -G1*G2/alphas[1] -G1*G2/alphas[2] -G1/(alphas[1]/alphas[2])
+    matrix[4,4] = -G1^2/alphas[1] -G2^2/alphas[2] -G1^2/alphas[3] +1/(alphas[1]*alphas[2]*alphas[3])
     for i in 1:4
         for j in i+1:4
+            if (i+j)%2 != 0
+                matrix[i,j] = -matrix[i,j]
+            end
             matrix[j,i] = matrix[i,j]
         end
     end
-    det = -(G1^2/(alphas[1]*alphas[2])) - G2^2/(alphas[1]*alphas[3]) - G1^2/(alphas[2]*alphas[3]) - G1^2/(alphas[1]*alphas[4]) - G2^2/(alphas[2]*alphas[4]) - G1^2/(alphas[3]*alphas[4]) + 1/(alphas[1]*alphas[2]*alphas[3]*alphas[4])
+    det = -G1^2/(alphas[1]*alphas[2]) - G2^2/(alphas[1]*alphas[3]) - G1^2/(alphas[2]*alphas[3]) - G1^2/(alphas[1]*alphas[4]) - G2^2/(alphas[2]*alphas[4]) - G1^2/(alphas[3]*alphas[4]) + 1/(alphas[1]*alphas[2]*alphas[3]*alphas[4])
     matrix ./= det
 end
 
