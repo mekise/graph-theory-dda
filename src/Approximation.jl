@@ -72,7 +72,7 @@ function weak4by4(scattpos, alphas, ω, J::Stdd; imagshift=1E-23)
     matrix[2,3] = -G1*G2/alphas[1] -G1*G2/alphas[4] -G1/(alphas[1]*alphas[4])
     matrix[2,4] = +G1^2/alphas[1] +G1^2/alphas[3] +G2/(alphas[1]*alphas[3])
     matrix[3,3] = -G2^2/alphas[1] -G1^2/alphas[2] -G1^2/alphas[4] +1/(alphas[1]*alphas[2]*alphas[4])
-    matrix[3,4] = -G1*G2/alphas[1] -G1*G2/alphas[2] -G1/(alphas[1]/alphas[2])
+    matrix[3,4] = -G1*G2/alphas[1] -G1*G2/alphas[2] -G1/(alphas[1]*alphas[2])
     matrix[4,4] = -G1^2/alphas[1] -G2^2/alphas[2] -G1^2/alphas[3] +1/(alphas[1]*alphas[2]*alphas[3])
     for i in 1:4
         for j in i+1:4
@@ -87,11 +87,11 @@ function weak4by4(scattpos, alphas, ω, J::Stdd; imagshift=1E-23)
 end
 
 function weakincfield(ϕinput, scattpos, alphas, ω, J::Stdd; returnfield=false, imagshift=1E-23)
-    M = weak4by4(scattpos, alphas, ω, J; imagshift=imagshift)
+    Minv = weak4by4(scattpos, alphas, ω, J; imagshift=imagshift)
     ϕinc_tilde = similar(ϕinput)
-    mul!(ϕinc_tilde, M, (ϕinput./alphas))
+    mul!(ϕinc_tilde, Minv, ϕinput)
     if returnfield
-        return ϕinc_tilde.*alphas
+        return ϕinc_tilde./alphas
     else
         return ϕinc_tilde
     end
@@ -131,11 +131,11 @@ function strong4by4(scattpos, alphas, ω, J::Stdd; imagshift=1E-23)
 end
 
 function strongincfield(ϕinput, scattpos, alphas, ω, J::Stdd; returnfield=false, imagshift=1E-23)
-    M = strong4by4(scattpos, alphas, ω, J; imagshift=imagshift)
+    Minv = strong4by4(scattpos, alphas, ω, J; imagshift=imagshift)
     ϕinc_tilde = similar(ϕinput)
-    mul!(ϕinc_tilde, M, (ϕinput./alphas))
+    mul!(ϕinc_tilde, Minv, ϕinput)
     if returnfield
-        return ϕinc_tilde.*alphas
+        return ϕinc_tilde./alphas
     else
         return ϕinc_tilde
     end

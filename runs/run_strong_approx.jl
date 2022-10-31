@@ -12,13 +12,13 @@ nscatt = 4
 
 # alphas = (rand(nscatt) .+ rand(nscatt).*1im)
 
-r = 0.00006
+r = 0.00001
 scattpos = zeros((nscatt, 3))
 for j in 1:nscatt
     scattpos[j, :] = [r*cos(2π*j/nscatt) r*sin(2π*j/nscatt) 0.]
 end
 
-navg = 1000
+navg = 100
 
 # ϕinput = rand(nscatt).+rand(nscatt).*1im
 ϕplane = r -> exp(1im*k0(ω, J)*r)
@@ -28,8 +28,8 @@ for i in 1:nscatt
 end
 
 # Total field
-xx = LinRange(-0.0001, 0.0001, 200)
-yy = LinRange(-0.0001, 0.0001, 200)
+xx = LinRange(-0.000015, 0.000015, 200)
+yy = LinRange(-0.000015, 0.000015, 200)
 phitot = zeros(ComplexF64, (length(xx), length(yy)))
 phitotapprox = zeros(ComplexF64, (length(xx), length(yy)))
 deviationavg = zeros(Float64, (length(xx), length(yy)))
