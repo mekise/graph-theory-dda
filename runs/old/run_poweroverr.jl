@@ -58,7 +58,7 @@ rspan = LinRange(0, maxradius*1.4, 100)
 Pout = zeros(length(rspan))
 Poutexpl = zeros(length(rspan))
 p = Progress(length(rspan));
-Threads.@threads for i in 1:length(rspan)
+Threads.@threads for i in eachindex(rspan)
     Pout[i] = powerout(rspan[i], ϕinput, scattpos, alphas, ω, J; normalized=normalized)[1]
     Poutexpl[i] = poweroutexplicit(rspan[i], ϕinput, scattpos, alphas, ω, J; normalized=normalized)[1]
     next!(p)
