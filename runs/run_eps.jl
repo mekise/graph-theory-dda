@@ -35,39 +35,39 @@ for k in 1:rsteps
 end
 
 # non-linear system solver
-ndegen = nscatt
-function f!(F, x)
-    for cindex in 1:ndegen
-        F[cindex] = sum(det.([intmatrix(scattpos[floor(Int, rsteps/2), 1:ndegen, :], x, ω+ωshift, J)[setdiff(1:end, i), setdiff(1:end, i)] for i in combinations([j for j in 1:nscatt], cindex-1)]))
-    end
-end
-validsolution = "n"
-while validsolution != "y"
-    global s = nlsolve(f!, 10*(rand(ndegen)+rand(ndegen)*1im), ftol=1e-5, iterations=1_000)
-    while s.f_converged == false
-        s = nlsolve(f!, 10*(rand(ndegen)+rand(ndegen)*1im), ftol=1e-5, iterations=1_000)
-    end
-    s = nlsolve(f!, s.zero, ftol=1e-20, iterations=10_000)
-    FF = ones(ndegen)+ones(ndegen)*1im
-    f!(FF, s.zero)
-    println("sol = ", s.zero)
-    println("\nftol = " * string(s.ftol) * "\nresidual_norm = " * string(s.residual_norm) * "\nFF(alphas) = " * string(FF))
-    println("\nContinue with this solution? (y, n)")
-    global validsolution = readline()
-end
-alphas = [s.zero; rand(nscatt-ndegen)+rand(nscatt-ndegen)*1im]
+# ndegen = nscatt
+# function f!(F, x)
+#     for cindex in 1:ndegen
+#         F[cindex] = sum(det.([intmatrix(scattpos[floor(Int, rsteps/2), 1:ndegen, :], x, ω+ωshift, J)[setdiff(1:end, i), setdiff(1:end, i)] for i in combinations([j for j in 1:nscatt], cindex-1)]))
+#     end
+# end
+# validsolution = "n"
+# while validsolution != "y"
+#     global s = nlsolve(f!, 10*(rand(ndegen)+rand(ndegen)*1im), ftol=1e-5, iterations=1_000)
+#     while s.f_converged == false
+#         s = nlsolve(f!, 10*(rand(ndegen)+rand(ndegen)*1im), ftol=1e-5, iterations=1_000)
+#     end
+#     s = nlsolve(f!, s.zero, ftol=1e-20, iterations=10_000)
+#     FF = ones(ndegen)+ones(ndegen)*1im
+#     f!(FF, s.zero)
+#     println("sol = ", s.zero)
+#     println("\nftol = " * string(s.ftol) * "\nresidual_norm = " * string(s.residual_norm) * "\nFF(alphas) = " * string(FF))
+#     println("\nContinue with this solution? (y, n)")
+#     global validsolution = readline()
+# end
+# alphas = [s.zero; rand(nscatt-ndegen)+rand(nscatt-ndegen)*1im]
 
 # Coalescence eigenvalues and eigenvectors
-eigs = zeros(ComplexF64, (rsteps, length(alphas)))
-eigvs = zeros(ComplexF64, (rsteps, length(alphas), length(alphas)))
-p = Progress(length(rspan));
-println("Starting...")
-Threads.@threads for k in eachindex(rspan)
-    eigs[k, :] = eigvals(intmatrix(scattpos[k, :, :], alphas, ω, J))
-    eigvs[k, :, :] = eigvecs(intmatrix(scattpos[k, :, :], alphas, ω, J))
-    next!(p)
-end
-npzwrite("./data/eigs_n4.npz", Dict("rspan" => rspan, "r" => float(r), "epsilon" => ϵ, "alphas" => alphas, "scattpos" => scattpos, "eigs" => eigs, "eigvs" => eigvs))
+# eigs = zeros(ComplexF64, (rsteps, length(alphas)))
+# eigvs = zeros(ComplexF64, (rsteps, length(alphas), length(alphas)))
+# p = Progress(length(rspan));
+# println("Starting...")
+# Threads.@threads for k in eachindex(rspan)
+#     eigs[k, :] = eigvals(intmatrix(scattpos[k, :, :], alphas, ω, J))
+#     eigvs[k, :, :] = eigvecs(intmatrix(scattpos[k, :, :], alphas, ω, J))
+#     next!(p)
+# end
+# npzwrite("./data/eigs_n4.npz", Dict("rspan" => rspan, "r" => float(r), "epsilon" => ϵ, "alphas" => alphas, "scattpos" => scattpos, "eigs" => eigs, "eigvs" => eigvs))
 
 # Total field over r
 # xx = LinRange(-10, 10, 200)
@@ -102,3 +102,35 @@ npzwrite("./data/eigs_n4.npz", Dict("rspan" => rspan, "r" => float(r), "epsilon"
 #     next!(p)
 # end
 # npzwrite("./data/poweroveromega_n4_imagomegashift.npz", Dict("rspan" => rspan, "omegaspan" => ωspan, "r" => float(r), "epsilon" => ϵ, "eta" => η, "alphas" => alphas, "scattpos" => scattpos, "phiinput" => ϕinput, "Pout" => Pout))
+
+# Save alphas to test active/passive regime
+ωshift = LinRange(-1., 1, 100)
+alphas = zeros(ComplexF64, length(ωshift), nscatt)
+ndegen = nscatt
+for kk in eachindex(ωshift)
+    function f!(F, x)
+        for cindex in 1:ndegen
+            F[cindex] = sum(det.([intmatrix(scattpos[floor(Int, rsteps/2), 1:ndegen, :], x, ω+ωshift[kk], J)[setdiff(1:end, i), setdiff(1:end, i)] for i in combinations([j for j in 1:nscatt], cindex-1)]))
+        end
+    end
+    if kk==1
+        global validsolution = "n"
+        while validsolution != "y"
+            global s = nlsolve(f!, (rand(ndegen)+rand(ndegen)*1im), ftol=1e-5, iterations=1_000)
+            while s.f_converged == false
+                s = nlsolve(f!, (rand(ndegen)+rand(ndegen)*1im), ftol=1e-5, iterations=1_000)
+            end
+            s = nlsolve(f!, s.zero, ftol=1e-20, iterations=10_000)
+            FF = ones(ndegen)+ones(ndegen)*1im
+            f!(FF, s.zero)
+            println("sol = ", s.zero)
+            println("\nftol = " * string(s.ftol) * "\nresidual_norm = " * string(s.residual_norm) * "\nFF(alphas) = " * string(FF))
+            println("\nContinue with this solution? (y, n)")
+            global validsolution = readline()
+        end
+    else
+        global s = nlsolve(f!, s.zero, ftol=1e-20, iterations=10_000)
+    end
+    alphas[kk, :] = [s.zero; rand(nscatt-ndegen)+rand(nscatt-ndegen)*1im]
+end
+npzwrite("./data/alphas.npz", Dict("omega" => ωshift, "alphas" => alphas))
