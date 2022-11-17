@@ -1,4 +1,4 @@
-# Graph theory aproach to exceptional points in wave scattering
+# Graph theory approach to exceptional points in wave scattering
 
 This is the code I developed to solve wave scattering systems built on discrete dipole approximation. The code can handle N scatterer systems in arbitrary settings, but shines for cyclic polygon settings. These can be automatically generated with the sole number of scatterers and radius of the polygon inscription (see the paper for an accurate description of the system).
 
