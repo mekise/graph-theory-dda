@@ -111,16 +111,16 @@ function strong4by4(scattpos, alphas, ω, J::Stdd; imagshift=1E-23)
     G1 = greensfun(scattpos[1,:], scattpos[2,:], ω, J; imagshift=imagshift)
     G2 = greensfun(scattpos[1,:], scattpos[3,:], ω, J; imagshift=imagshift)
     matrix = zeros(ComplexF64, (4,4))
-    matrix[1,1] = 2*G1^2*G2
-    matrix[1,2] = -G1*G2^2
-    matrix[1,3] = -2*G1^2*G2+G2^3
-    matrix[1,4] = -G1*G2^2
-    matrix[2,2] = 2*G1^2*G2
-    matrix[2,3] = -G1*G2^2
-    matrix[2,4] = -2*G1^2*G2+G2^3
-    matrix[3,3] = 2*G1^2*G2
-    matrix[3,4] = -G1*G2^2
-    matrix[4,4] = 2*G1^2*G2
+    matrix[1,1] = -2*G1^2*G2
+    matrix[1,2] = G1*G2^2
+    matrix[1,3] = 2*G1^2*G2-G2^3
+    matrix[1,4] = G1*G2^2
+    matrix[2,2] = -2*G1^2*G2
+    matrix[2,3] = G1*G2^2
+    matrix[2,4] = 2*G1^2*G2-G2^3
+    matrix[3,3] = -2*G1^2*G2
+    matrix[3,4] = G1*G2^2
+    matrix[4,4] = -2*G1^2*G2
     for i in 1:4
         for j in i+1:4
             matrix[j,i] = matrix[i,j]
