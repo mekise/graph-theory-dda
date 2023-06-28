@@ -9,7 +9,8 @@ This is the code I developed to solve wave scattering systems built on the discr
 - perform a sweep in imaginary shift of the design frequency to find the preferred dissipation balance in the set of scatterers
 
 ### Paper
-https://arxiv.org/abs/2301.08257
+- Journal of Physics A: Mathematical and Theoretical https://doi.org/10.1088/1751-8121/acdb13
+- arXiv version https://arxiv.org/abs/2301.08257
 
 ### Authors
 S. Scali, J. Anders, S. A. R. Horsley
